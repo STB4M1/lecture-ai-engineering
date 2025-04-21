@@ -6,18 +6,18 @@ import time
 # ============================================
 # ページ設定
 # ============================================
-# st.set_page_config(
-#     page_title="Streamlit デモ",
-#     layout="wide",
-#     initial_sidebar_state="expanded"
-# )
+st.set_page_config(
+    page_title="Streamlit デモ",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
 # ============================================
 # タイトルと説明
 # ============================================
-st.title("Streamlit 初心者向けデモ")
-st.markdown("### コメントを解除しながらStreamlitの機能を学びましょう")
-st.markdown("このデモコードでは、コメントアウトされた部分を順番に解除しながらUIの変化を確認できます。")
+st.title("✨ AIデモアプリ（改善版）✨")
+st.markdown("### UIを少しアレンジしてみました")
+st.markdown("いくつかの要素を有効にして、見た目や体験をちょっと改善しています。")
 
 # ============================================
 # サイドバー 
@@ -36,9 +36,9 @@ name = st.text_input("あなたの名前", "ゲスト")
 st.write(f"こんにちは、{name}さん！")
 
 # ボタン
-# st.subheader("ボタン")
-# if st.button("クリックしてください"):
-#     st.success("ボタンがクリックされました！")
+st.subheader("ボタン")
+if st.button("クリックしてください"):
+    st.success("ボタンがクリックされました！")
 
 # チェックボックス
 # st.subheader("チェックボックス")
@@ -46,9 +46,9 @@ st.write(f"こんにちは、{name}さん！")
 #     st.info("これは隠れたコンテンツです！")
 
 # スライダー
-# st.subheader("スライダー")
-# age = st.slider("年齢", 0, 100, 25)
-# st.write(f"あなたの年齢: {age}")
+st.subheader("スライダー")
+age = st.slider("年齢", 0, 100, 25)
+st.write(f"あなたの年齢: {age}")
 
 # セレクトボックス
 # st.subheader("セレクトボックス")
