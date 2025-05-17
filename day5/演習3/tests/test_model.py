@@ -171,3 +171,56 @@ def test_model_reproducibility(sample_data, preprocessor):
     assert np.array_equal(
         predictions1, predictions2
     ), "モデルの予測結果に再現性がありません"
+
+def test_model_training_time(sample_data, preprocessor):
+    """学習時間が長すぎないかを検証"""
+    X = sample_data.drop("Survived", axis=1)
+    y = sample_data["Survived"].astype(int)
+    X_train, _, y_train, _ = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    model = Pipeline(
+        steps=[
+            ("preprocessor", preprocessor),
+            ("classifier", RandomForestClassifier(n_estimators=100, random_state=42)),
+        ]
+    )
+
+    start_time = time.time()
+    model.fit(X_train, y_train)
+    end_time = time.time()
+
+    train_time = end_time - start_time
+    assert train_time < 5.0, f"学習時間が長すぎます: {train_time:.2f}秒"
+
+def test_missing_values(sample_data):
+    """欠損値が多すぎないかをチェック"""
+    null_ratios = sample_data.isnull().mean()
+    max_null_ratio = null_ratios.max()
+    assert max_null_ratio < 0.2, f"欠損値の比率が高すぎます（最大 {max_null_ratio:.2f}）"
+
+def test_prediction_distribution(train_model):
+    """予測が偏りすぎていないかをチェック（全て1とか）"""
+    model, X_test, _ = train_model
+    y_pred = model.predict(X_test)
+    unique, counts = np.unique(y_pred, return_counts=True)
+    ratio = counts / len(y_pred)
+    assert np.all(ratio < 0.95), f"予測が一方に偏りすぎています: {dict(zip(unique, ratio))}"
+
+def test_model_not_worse_than_previous(train_model):
+    """前回保存されたモデルと今回のモデルを比較して劣化がないかチェック"""
+    previous_model_path = MODEL_PATH
+
+    # 過去モデルが存在しなければスキップ（初回実行時など）
+    if not os.path.exists(previous_model_path):
+        pytest.skip("過去モデルが存在しないためスキップ")
+
+    # 現在のモデル
+    model, X_test, y_test = train_model
+    new_score = accuracy_score(y_test, model.predict(X_test))
+
+    # 過去のモデルを読み込んで比較
+    with open(previous_model_path, "rb") as f:
+        prev_model = pickle.load(f)
+    prev_score = accuracy_score(y_test, prev_model.predict(X_test))
+
+    assert new_score >= prev_score, f"精度が下がってます: {new_score} < {prev_score}"
